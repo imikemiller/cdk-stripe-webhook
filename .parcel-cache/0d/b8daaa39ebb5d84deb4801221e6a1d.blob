@@ -1,0 +1,18 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+/**
+ * Register handlers for the stripe events here
+ *
+ * https://stripe.com/docs/api/events/types
+ */
+const Controllers = {
+  //Example event handler
+  "account.updated": async (data) => console.log("Account Updated", data)
+};
+var _default = Controllers;
+exports.default = _default;

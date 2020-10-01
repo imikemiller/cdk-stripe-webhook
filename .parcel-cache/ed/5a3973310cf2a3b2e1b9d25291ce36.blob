@@ -1,0 +1,57 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.handler = void 0;
+
+var _controllers = _interopRequireDefault(require("./controllers"));
+
+var StripeConfig = _interopRequireWildcard(require("../stripe.config.json"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const handler = async (event) => {
+  //setup stripe env config
+  const stage = !Boolean(event.requestContext && event.requestContext.stage) ? "test" : "live";
+  const config = StripeConfig[stage];
+
+  try {
+    const stripe = require("stripe")(config.secretKey);
+
+    const validEvent = stripe.webhooks.constructEvent(event.body, event.headers["stripe-signature"], config.webhookSecret); //pass data into the event handler if registered
+
+    const {
+      data,
+      type
+    } = validEvent;
+
+    if (_controllers.default[type] instanceof Function) {
+      _controllers.default[type](data, stripe);
+    } else if (stage === "test") {
+      console.log(`⚠️ no controller for event type - ${type}`);
+    }
+
+    return {
+      statusCode: 200,
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: `Handled event of type ${type}`
+    };
+  } catch (err) {
+    return {
+      statusCode: err.statusCode || 501,
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: err.message || "Internal server error"
+    };
+  }
+};
+
+exports.handler = handler;

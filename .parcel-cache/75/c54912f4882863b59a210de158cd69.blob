@@ -1,0 +1,53 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.handler = void 0;
+
+var stripeConfig = _interopRequireWildcard(require("../../stripe.config.json"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+const handler = async (event) => {
+  //setup stripe env config
+  const config = stripeConfig[!Boolean(event.requestContext && event.requestContext.stage) ? "test" : "live"];
+
+  try {
+    const stripe = require("stripe")(config.sk);
+
+    const validEvent = stripe.webhooks.constructEvent(event.body, event.headers["stripe-signature"], process.env.STRIPE_WEBHOOK_SECRET);
+
+    const handlers = require("../../stripe.handlers"); //pass data into the event handler if registered
+
+
+    const {
+      data,
+      type
+    } = validEvent;
+
+    if (handlers[type] instanceof Function) {
+      handlers[type](data);
+    }
+
+    return {
+      statusCode: 200,
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: `Handled event of type ${type}`
+    };
+  } catch (err) {
+    return {
+      statusCode: err.statusCode || 501,
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: err.message || "Internal server error"
+    };
+  }
+};
+
+exports.handler = handler;

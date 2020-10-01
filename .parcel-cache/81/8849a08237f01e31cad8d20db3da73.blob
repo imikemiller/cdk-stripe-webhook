@@ -1,0 +1,1 @@
+module.exports = JSON.parse("{\"test\":{\"sk\":\"\",\"ws\":\"\"},\"live\":{\"sk\":\"\",\"ws\":\"\"}}");

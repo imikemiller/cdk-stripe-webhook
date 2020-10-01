@@ -1,0 +1,1 @@
+module.exports = JSON.parse("{\"test\":{\"secretKey\":\"\",\"webhookSecret\":\"\"},\"live\":{\"secretKey\":\"\",\"webhookSecret\":\"\"}}");
