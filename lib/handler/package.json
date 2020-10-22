@@ -1,9 +1,0 @@
-{
-  "name": "webhook-handler",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "dependencies": {
-    "stripe": "^8.106.0"
-  }
-}

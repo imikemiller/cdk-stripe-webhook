@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import controllers from "./controllers";
+import handlers from "./handlers";
 import Stripe from "stripe";
 
 export const handler = async (
@@ -17,14 +17,14 @@ export const handler = async (
 
     const validEvent: Stripe.Event = stripe.webhooks.constructEvent(
       event.body,
-      event.headers["stripe-signature"],
+      event.headers["Stripe-Signature"],
       process.env.WEBHOOK_SECRET
     );
 
     //pass data into the event handler if registered
     const { data, type } = validEvent;
-    if (controllers[type] instanceof Function) {
-      controllers[type](data, stripe);
+    if (handlers[type] instanceof Function) {
+      handlers[type](data, stripe);
     }
 
     return responseBody(200, `Handled event of type ${type}`);

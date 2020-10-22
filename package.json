@@ -28,6 +28,7 @@
     "@aws-cdk/aws-lambda-nodejs": "^1.22.0",
     "@aws-cdk/core": "^1.22.0",
     "dotenv": "^8.2.0",
-    "source-map-support": "^0.5.16"
+    "source-map-support": "^0.5.16",
+    "stripe": "^8.107.0"
   }
 }
